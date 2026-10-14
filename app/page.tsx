@@ -20,6 +20,19 @@ const facts = [
   },
 ];
 
+function XLink({ handle, children }: { handle: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={`https://x.com/${handle}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline decoration-2 underline-offset-4 hover:decoration-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+    >
+      {children}
+    </a>
+  );
+}
+
 export default function Home() {
   return (
     <main className="flex-1">
@@ -42,10 +55,17 @@ export default function Home() {
         </div>
 
         <div>
-          <h1 className="text-[clamp(4.5rem,18vw,9rem)] font-black uppercase leading-[0.85] tracking-tight">
+          <h1 className="text-[clamp(4.5rem,18vw,9rem)] font-black uppercase leading-[0.85] tracking-tight md:text-[clamp(4.5rem,11vw,8.5rem)]">
             Hoods
           </h1>
-          <p className="mt-4 text-lg font-semibold sm:text-xl">51 Hoods, drawn by David Horvath.</p>
+          <p className="mt-4 text-lg font-semibold">
+            <span className="whitespace-nowrap">
+              51 Hoods, drawn by <XLink handle="davidzhorvath">David Horvath</XLink>.
+            </span>{" "}
+            <span className="whitespace-nowrap">
+              Contract by <XLink handle="jarrensj">Jarren</XLink>.
+            </span>
+          </p>
           <MintCard />
         </div>
       </section>
