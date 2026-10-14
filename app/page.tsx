@@ -13,7 +13,7 @@ const facts = [
   {
     figure: "1",
     title: "Per wallet",
-    body: "One HOOD per transaction, one mint per wallet. Once a wallet mints, it's done.",
+    body: "One mint per wallet. Once a wallet has minted, the wallet can no longer mint more.",
   },
   {
     figure: "?",
