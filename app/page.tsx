@@ -6,17 +6,17 @@ const facts = [
   {
     figure: "51",
     title: "Total supply",
-    body: "The supply is fixed in the contract. There will never be more than 51 Hoods.",
+    body: "The supply is fixed in the contract. There will never be more than 51 HOODS.",
   },
   {
     figure: "1",
     title: "Per transaction",
-    body: "Each mint is one Hood. Want another? Mint again.",
+    body: "Each mint is one HOOD. Want another? Mint again.",
   },
   {
     figure: "?",
     title: "Hidden until reveal",
-    body: "Every Hood shows the same hooded 51 until the art is revealed.",
+    body: "Every HOODS show the same hooded 51 until the art is revealed.",
   },
 ];
 
@@ -47,7 +47,7 @@ export default function Home() {
         <div className="mx-auto w-full max-w-xs -rotate-2 border-[6px] border-ink shadow-[10px_10px_0_0_var(--ink)] sm:max-w-md">
           <Image
             src={unrevealed}
-            alt="Hoods unrevealed artwork: a black hood with a white 51 on a red background"
+            alt="HOODS unrevealed artwork: a black hood with a white 51 on a red background"
             placeholder="blur"
             preload
             sizes="(min-width: 640px) 28rem, 20rem"
@@ -60,7 +60,7 @@ export default function Home() {
           </h1>
           <p className="mt-4 text-lg font-semibold">
             <span className="whitespace-nowrap">
-              51 Hoods, drawn by <XLink handle="davidzhorvath">David Horvath</XLink>.
+              51 HOODS, drawn by <XLink handle="davidzhorvath">David Horvath</XLink>.
             </span>{" "}
             <span className="whitespace-nowrap">
               Contract by <XLink handle="jarrensj">Jarren</XLink>.
