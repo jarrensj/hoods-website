@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Alfa_Slab_One, Montserrat } from "next/font/google";
 import Footer from "./_components/footer";
+import Providers from "./_components/providers";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <feDisplacementMap in="SourceGraphic" scale="7" />
           </filter>
         </svg>
-        {children}
+        <Providers>{children}</Providers>
         <Footer />
       </body>
     </html>

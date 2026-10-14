@@ -24,20 +24,23 @@ body {
   background-repeat: no-repeat;
 }
 
-/* Black panel with a wobbly, hand-drawn edge, like the hood in the artwork.
-   The edge is drawn on a background layer so text inside stays crisp. */
-.ink-panel {
-  position: relative;
-  isolation: isolate;
-  color: var(--paper);
-}
+/* In the components layer so utilities (absolute, padding, …) can override it. */
+@layer components {
+  /* Black panel with a wobbly, hand-drawn edge, like the hood in the artwork.
+     The edge is drawn on a background layer so text inside stays crisp. */
+  .ink-panel {
+    position: relative;
+    isolation: isolate;
+    color: var(--paper);
+  }
 
-.ink-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: var(--ink);
-  border-radius: 0.5rem;
-  filter: url(#rough-edge);
+  .ink-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--ink);
+    border-radius: 0.5rem;
+    filter: url(#rough-edge);
+  }
 }
