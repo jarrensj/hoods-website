@@ -1,30 +1,38 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Alfa_Slab_One, Montserrat } from "next/font/google";
 import Footer from "./_components/footer";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const alfaSlab = Alfa_Slab_One({
+  variable: "--font-alfa-slab",
+  weight: "400",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "hoodie pfp",
-  description: "hoodie pfp",
+  title: "Hoods",
+  description: "51 Hoods, drawn by David Horvath. One mint per transaction on Robinhood Chain.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${montserrat.variable} ${alfaSlab.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
+        {/* Filter used by .ink-panel to roughen panel edges. */}
+        <svg aria-hidden="true" className="absolute h-0 w-0">
+          <filter id="rough-edge">
+            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="5" />
+            <feDisplacementMap in="SourceGraphic" scale="7" />
+          </filter>
+        </svg>
         {children}
         <Footer />
       </body>
