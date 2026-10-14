@@ -17,7 +17,7 @@ const alfaSlab = Alfa_Slab_One({
 
 export const metadata: Metadata = {
   title: "HOODS",
-  description: "51 HOODS, drawn by David Horvath. One mint per transaction on Robinhood Chain.",
+  description: "51 HOODS, drawn by David Horvath. One mint per wallet on Robinhood Chain.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
