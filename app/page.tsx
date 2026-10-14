@@ -1,5 +1,7 @@
 import Image from "next/image";
+import { chain } from "@/lib/chain";
 import unrevealed from "@/public/unrevealed.jpg";
+import ConnectWallet from "./_components/connect-wallet";
 import MintCard from "./_components/mint-card";
 
 const facts = [
@@ -36,11 +38,14 @@ function XLink({ handle, children }: { handle: string; children: React.ReactNode
 export default function Home() {
   return (
     <main className="flex-1">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 pt-6">
+      <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 pt-6">
         <span className="text-2xl font-black uppercase tracking-tight text-paper">Hoods</span>
-        <span className="rounded-full border-2 border-paper/80 px-3 py-1 text-xs font-bold uppercase tracking-widest text-paper">
-          Robinhood Chain
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="hidden rounded-full border-2 border-paper/80 px-3 py-1 text-xs font-bold uppercase tracking-widest text-paper sm:inline-block">
+            {chain.name}
+          </span>
+          <ConnectWallet />
+        </div>
       </header>
 
       <section className="mx-auto grid max-w-6xl gap-12 px-4 py-12 md:grid-cols-2 md:items-center md:py-20">
