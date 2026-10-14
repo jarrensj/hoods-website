@@ -15,7 +15,7 @@ const alfaSlab = Alfa_Slab_One({
 });
 
 export const metadata: Metadata = {
-  title: "Hoods",
+  title: "HOODS",
   description: "51 Hoods, drawn by David Horvath. One mint per transaction on Robinhood Chain.",
 };
 
