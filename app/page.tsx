@@ -60,6 +60,9 @@ export default function Home() {
         </div>
 
         <div>
+          <p className="mb-4 inline-block bg-ink px-3 py-1.5 text-xs font-black uppercase tracking-widest text-paper">
+            A Robinhood Chain collection
+          </p>
           <h1 className="text-[clamp(4.5rem,18vw,9rem)] font-black uppercase leading-[0.85] tracking-tight md:text-[clamp(4.5rem,11vw,8.5rem)]">
             Hoods
           </h1>
