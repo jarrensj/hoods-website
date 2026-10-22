@@ -1,7 +1,7 @@
 export default function MintCard() {
   return (
     <div className="ink-panel mt-8 p-6 sm:p-8">
-      <dl className="grid grid-cols-3 items-end gap-4 text-center">
+      <dl className="grid grid-cols-[repeat(3,1fr)] items-end gap-4 text-center">
         <div>
           <dt className="text-xs font-bold uppercase tracking-widest text-paper/70">Supply</dt>
           <dd className="mt-1 font-slab text-3xl">51</dd>
@@ -11,8 +11,8 @@ export default function MintCard() {
           <dd className="mt-1 font-slab text-3xl">1</dd>
         </div>
         <div>
-          <dt className="text-xs font-bold uppercase tracking-widest text-paper/70">Price</dt>
-          <dd className="mt-1 font-slab text-3xl">TBA</dd>
+          <dt className="text-xs font-bold uppercase tracking-widest text-paper/70">Price (ETH)</dt>
+          <dd className="mt-1 font-slab text-3xl">0.0333</dd>
         </div>
       </dl>
       <button
