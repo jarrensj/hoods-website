@@ -1,22 +1,40 @@
-// Opening animation: the hood from the artwork fills the screen with the white
-// 51 on it. It dips as if grabbed, then is pulled up and away, shrinking into
-// the hooded-51 silhouette as the site comes into view around it. Pure CSS
-// (see globals.css), so it plays before hydration, never blocks clicks, and is
-// skipped for people who prefer reduced motion.
+// Opening animation: the 51 shows up on black, then the view pulls back to
+// three of the hooded characters standing side by side, blacked out like
+// shadows, with the 51 on the middle one. They are lifted up and off one after
+// another as the site comes into view. Pure CSS (see globals.css), so it plays
+// before hydration, never blocks clicks, and is skipped for people who prefer
+// reduced motion.
 
-// Hood outline traced loosely from the artwork (rounded crown on the left, back
-// sloping down to the right) with a hand-drawn wobble baked into the points.
-const HOOD_PATH =
-  "M-0.3 90.3L-0.1 87.8L0.2 85.5L0.5 83.2L0.6 80.8L0.8 78.4L2.0 76.0L2.4 73.4L3.0 70.8L2.4 68.1L3.0 65.4L3.1 62.6L3.7 59.9L3.4 57.0L3.9 54.2L4.7 51.4L5.8 48.6L6.5 45.7L6.5 42.8L7.1 39.9L7.5 37.0L8.3 34.1L7.8 31.0L8.4 28.1L8.8 25.2L10.4 22.5L10.9 19.7L11.6 16.9L12.1 14.0L12.7 13.2L13.1 12.3L12.6 11.2L12.6 10.3L12.5 9.3L13.5 8.8L13.7 7.9L14.3 7.4L14.4 6.5L15.5 6.3L15.9 5.7L16.3 5.1L16.1 4.1L16.4 3.4L17.1 3.1L17.6 2.6L18.2 2.3L18.6 1.6L19.6 2.1L20.2 2.0L21.0 2.2L21.4 1.1L22.1 1.1L22.8 0.7L23.6 0.9L24.4 0.4L25.2 0.2L26.0 0.7L27.7 1.5L29.3 2.2L31.1 1.9L32.8 2.4L34.5 2.5L36.1 3.3L38.0 2.8L39.8 3.2L41.5 3.4L43.0 4.7L44.5 5.5L46.2 6.1L47.8 6.7L49.4 7.4L50.8 8.5L52.7 8.6L54.4 9.1L56.2 9.2L57.4 10.8L59.0 11.6L60.3 12.8L61.9 13.4L63.0 14.9L64.2 16.2L65.6 17.1L67.4 17.7L69.1 18.4L70.1 19.8L71.7 21.2L73.0 22.8L74.9 24.0L75.6 26.1L76.8 27.9L77.7 29.9L79.6 31.2L81.0 32.9L82.4 34.7L83.5 36.8L84.9 38.8L86.5 40.7L87.2 43.1L88.0 45.6L88.3 48.4L89.9 50.7L90.7 53.4L92.1 56.0L92.5 59.0L94.1 61.7L95.3 64.7L96.4 67.9L96.6 71.3L96.9 74.9L97.7 78.5L98.4 82.2L99.2 86.0L99.3 89.7L97.5 89.9L95.0 90.1L92.5 90.9L90.0 90.3L87.5 90.2L85.0 89.9L82.5 90.1L80.0 89.8L77.5 89.3L75.0 89.4L72.5 89.7L70.0 90.6L67.5 90.2L65.0 90.4L62.5 90.0L60.0 90.6L57.5 90.0L55.0 89.7L52.5 89.1L50.0 89.6L47.5 90.0L45.0 90.1L42.5 90.2L40.0 90.1L37.5 90.8L35.0 90.4L32.5 90.2L30.0 89.2L27.5 89.7L25.0 89.6L22.5 90.0L20.0 89.6L17.5 90.0L15.0 90.5L12.5 90.7L10.0 90.5L7.5 89.7L5.0 89.8L2.5 89.6Z";
+// Character outline traced from the artwork: hood tip at the top left, round
+// head, cloak shoulders, then the cloak runs on to a ragged hem (kept below the
+// screen until the characters are lifted).
+const FIGURE_PATH =
+  "M29.3 0L32.4 0L32.6 0.3L33.7 0L35.5 0.8L36 1.3L37.5 1.8L40.1 1.8L40.9 2.1L42.4 3.1L42.9 3.1L43.2 3.6L43.7 3.6L45.2 4.4L45.8 4.9L47.6 5.4L48.8 5.4L52.2 7.7L54 8.2L54.2 8.7L55.8 9.3L56.6 9.8L57.1 10.5L58.1 11.1L58.6 11.8L59.1 11.8L59.6 12.3L60.7 12.6L62.7 14.1L67.9 17.2L69.7 18.8L72 19.8L72.8 20.3L73 20.8L73.5 20.8L74.6 21.9L75.6 22.4L79.2 25.2L81.2 26.2L84.3 29L85.9 30.1L86.6 31.1L87.4 31.4L88.9 33.7L90 34.2L91 35.2L92.8 38.6L93.8 41.4L95.4 43.2L95.6 44.2L96.7 45.8L96.7 46.5L97.4 48.1L97.4 48.8L98.2 50.4L98.2 51.2L98.7 51.7L99.2 54.8L99.5 55L99.2 55.3L99.7 56.8L100 60.7L99.7 60.9L99.7 63.8L99.5 64L99.5 65L99 66.6L98.7 70.4L98.5 70.7L98.2 72.5L95.4 80.5L94.9 82.8L94.1 84.1L93.3 87.4L91.5 90.5L91 93.8L90.2 95.1L90.2 95.9L90 96.1L90.5 97.7L91.3 98.5L91.8 100L92.3 100.5L92.3 101.8L92.5 102.1L92.3 104.1L91 106.4L91 106.9L92 107.7L92.8 108.7L92.8 109.8L93.1 110L92.8 112.1L90.7 116.2L90.5 117.7L91.1 129.7L91.7 149L87.5 147.8L84.3 150L81.1 148.5L77.9 148.3L74.7 149.6L71.5 149.1L68.3 148.6L65.1 149.6L61.9 149.6L58.7 149.1L55.5 149.4L52.3 149.3L49.1 149.8L45.9 148.4L42.7 148.7L39.5 149.5L36.3 149.5L33.1 147.9L29.9 149.4L26.7 148.9L23.5 150L20.3 149.7L17.1 148.1L13.9 149L10.7 150L7.5 149.5L5.5 149L6.1 129.7L6.7 117.7L6.7 115.9L6.4 115.7L6.7 114.4L6.2 112.6L5.7 111.8L5.7 110L6.2 109.5L6.4 108.2L9.5 104.6L9.5 100.3L10.3 99.2L10.3 98.5L11.3 97.2L11.6 95.9L10.3 93.1L9.5 92L9.5 91.3L8.5 89.2L8.5 88.7L8 88.4L7.7 87.4L5.4 83.5L5.4 82.8L4.9 82L4.9 81.5L4.1 80.7L3.6 78.9L3.6 77.9L2.1 74.6L2.1 72.8L1.8 72.5L1.3 68.9L0.8 68.1L0.8 66.6L0.3 64.8L0.3 61.7L0 61.4L0.3 56.6L0.5 56.3L0.5 52.4L0.8 52.2L0.8 48.6L2.6 43.7L3.1 42.9L3.1 41.9L4.1 38.6L5.7 35.5L5.9 34.2L6.9 32.4L7.5 30.6L8.7 28L10.8 25.7L11.3 24.2L12.3 22.6L12.3 18.5L12.6 18.3L12.3 18L12.6 17.2L12.3 14.7L12.6 14.1L12.3 13.9L12.3 11.3L12.1 11.1L12.1 8.7L11.8 8.5L12.1 7.7L11.8 5.1L13.1 1.8L14.1 1.3L15.4 1.3L17.5 0.5L17.7 0.8L19.3 0.8L20.6 0.3L21.1 0.5L21.3 0.3L25.7 0.5L26 0.3L29 0.3Z";
+
+const FIGURES = [1, 2, 3];
 
 export default function Intro() {
   return (
     <div aria-hidden="true" className="intro">
-      <div className="intro-hood">
-        <svg viewBox="0 0 100 90" className="intro-hood-shape">
-          <path d={HOOD_PATH} />
-        </svg>
-        <span className="intro-mark">51</span>
+      <div className="intro-row intro-crowd">
+        {FIGURES.map((n) => (
+          <svg
+            key={n}
+            viewBox="0 0 100 150"
+            className={`intro-slot intro-figure intro-lift-${n}`}
+          >
+            <path d={FIGURE_PATH} />
+          </svg>
+        ))}
+      </div>
+      {/* The same row again, never scaled, holding the 51: it stays put while
+          the characters pull back into place, then leaves with the middle one. */}
+      <div className="intro-row">
+        <span className="intro-slot" />
+        <span className="intro-slot intro-lift-2">
+          <span className="intro-mark">51</span>
+        </span>
+        <span className="intro-slot" />
       </div>
     </div>
   );
