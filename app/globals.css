@@ -44,3 +44,100 @@ body {
     filter: url(#rough-edge);
   }
 }
+
+/* Opening animation (app/_components/intro.tsx). The page starts under a black
+   cover with the white 51 from the artwork. The cover dips as if grabbed, then
+   is pulled up and off, and the site underneath brightens as light comes in.
+   Timeline: 0–0.5s cover held · 0.5–1.7s cover pulled off · 1.0–2.0s light comes up. */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+  animation: intro-done 0s 2.1s forwards;
+}
+
+/* Lingering shadow over the site, faded out once the cover is mostly off. */
+.intro::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  opacity: 0.8;
+  animation: intro-light 1s cubic-bezier(0.4, 0, 0.2, 1) 1s forwards;
+}
+
+/* The moving part. Wider and taller than the screen so its rough edges stay
+   off-screen; the arch-shaped opening at the bottom starts just below the fold. */
+.intro-cover {
+  position: absolute;
+  top: 0;
+  left: -10vw;
+  width: 120vw;
+  height: 150vh;
+  will-change: transform;
+  animation: intro-lift 1.2s cubic-bezier(0.65, 0, 0.35, 1) 0.5s forwards;
+}
+
+/* The fabric: black with an arched opening cut from the bottom, roughened like
+   the hood in the artwork, casting a deep shadow onto the site below. */
+.intro-cloth {
+  position: absolute;
+  inset: 0;
+  filter: url(#rough-cover) drop-shadow(0 2rem 3rem rgb(0 0 0 / 0.55));
+}
+
+.intro-cloth::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  mask-image: radial-gradient(ellipse 34% 30% at 50% 100%, transparent 98%, #000 100%);
+}
+
+.intro-mark {
+  position: absolute;
+  top: 50vh;
+  left: 50%;
+  translate: -50% -50%;
+  color: var(--paper);
+  font-family: var(--font-alfa-slab);
+  font-size: clamp(7rem, 32vw, 16rem);
+  line-height: 1;
+  animation: intro-mark 0.35s ease-out both;
+}
+
+@keyframes intro-mark {
+  from {
+    opacity: 0;
+    scale: 0.92;
+  }
+}
+
+@keyframes intro-lift {
+  15% {
+    transform: translateY(3vh);
+  }
+  to {
+    transform: translateY(calc(-150vh - 10rem));
+  }
+}
+
+@keyframes intro-light {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes intro-done {
+  to {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro {
+    display: none;
+  }
+}
