@@ -51,39 +51,40 @@ export default function Home() {
 
       {/* HOODS fills the width between the side paddings exactly: Montserrat
           Black "HOODS" at -0.05em is about 3.73em wide. Container units keep a
-          scrollbar from pushing it over. */}
+          scrollbar from pushing it over; the hero below uses them too, to fit
+          under it (see .hero in globals.css). */}
       <div className="@container">
         <h1 className="px-6 pt-4 text-center text-[calc(26.8cqw-13px)] font-black uppercase leading-[0.78] tracking-[-0.05em] md:px-16 md:text-[calc(26.8cqw-34px)]">
           Hoods
         </h1>
+
+        <section className="hero grid items-center gap-10 px-6 pt-10 md:grid-cols-2 md:px-16 md:pt-16 lg:gap-[72px] lg:pt-10">
+          <div className="flex min-w-0 flex-col gap-8">
+            {/* A byline under the wordmark rather than a second headline: one
+                sentence per line, with the names set heavier. */}
+            <p className="text-[clamp(20px,2vw,30px)] font-semibold leading-[1.35] tracking-[-0.01em]">
+              <span className="block text-balance">
+                51 HOODS, drawn by <XLink handle="davidzhorvath">David Horvath</XLink>.
+              </span>
+              <span className="block text-balance">
+                Contract and website by <XLink handle="jarrensj">Jarren</XLink>.
+              </span>
+            </p>
+            <MintCard />
+          </div>
+
+          <div className="min-w-0 border-[10px] border-navy shadow-[18px_18px_0_0_var(--navy)]">
+            <Image
+              src={unrevealed}
+              alt="HOODS unrevealed artwork: a black hood with a white 51 on a black background"
+              placeholder="blur"
+              preload
+              sizes="(min-width: 1024px) 46vw, (min-width: 768px) 45vw, 100vw"
+              className="block h-auto w-full"
+            />
+          </div>
+        </section>
       </div>
-
-      <section className="grid items-center gap-10 px-6 pt-10 md:grid-cols-2 md:px-16 md:pt-16 lg:grid-cols-[minmax(0,1fr)_45.7%] lg:gap-[72px]">
-        <div className="flex min-w-0 flex-col gap-8">
-          {/* A byline under the wordmark rather than a second headline: one
-              sentence per line, with the names set heavier. */}
-          <p className="text-[clamp(20px,2vw,30px)] font-semibold leading-[1.35] tracking-[-0.01em]">
-            <span className="block text-balance">
-              51 HOODS, drawn by <XLink handle="davidzhorvath">David Horvath</XLink>.
-            </span>
-            <span className="block text-balance">
-              Contract and website by <XLink handle="jarrensj">Jarren</XLink>.
-            </span>
-          </p>
-          <MintCard />
-        </div>
-
-        <div className="min-w-0 border-[10px] border-navy shadow-[18px_18px_0_0_var(--navy)]">
-          <Image
-            src={unrevealed}
-            alt="HOODS unrevealed artwork: a black hood with a white 51 on a black background"
-            placeholder="blur"
-            preload
-            sizes="(min-width: 1024px) 46vw, (min-width: 768px) 45vw, 100vw"
-            className="block h-auto w-full"
-          />
-        </div>
-      </section>
 
       <section
         className={`grid gap-[clamp(40px,3.9vw,56px)] px-6 pt-[clamp(80px,8.9vw,128px)] md:grid-cols-3 md:px-16 ${contractUrl ? "" : "pb-[clamp(80px,8.9vw,128px)]"}`}
