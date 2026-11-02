@@ -28,6 +28,22 @@ body {
   background-color: var(--evergreen);
 }
 
+/* Desktop hero (app/page.tsx): fits in the first screen under the wordmark.
+   The artwork is sized to the height left over: the screen, less the header
+   (96px), the wordmark (16px above it plus a line box of 0.78 × its font size
+   of 26.8cqw − 34px), 40px above the hero and 40px below it. It stays between
+   18rem and the design's 45.7% column. The byline and mint card keep the
+   design's 40rem, at the left margin under the H, with the artwork at the
+   right margin under the S. */
+@media (min-width: 64rem) {
+  .hero {
+    grid-template-columns:
+      minmax(0, 40rem)
+      min(45.7%, max(18rem, calc(100svh - 20.9cqw - 166px)));
+    justify-content: space-between;
+  }
+}
+
 /* Opening animation (app/_components/intro.tsx). The 51 shows up on black; the
    view pulls back to all 51 hooded characters as black shadows, the one in
    front wearing the 51 and a crowd of 50 behind; then they are lifted up and
