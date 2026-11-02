@@ -76,7 +76,7 @@ export default function Home() {
           <div className="min-w-0 border-[10px] border-navy shadow-[18px_18px_0_0_var(--navy)]">
             <Image
               src={unrevealed}
-              alt="The unrevealed HOODS artwork: a black hood marked with a white 51, barely outlined against black, above the word HOODS in faint grey."
+              alt="HOODS logo art: a hood with a white 51, nearly lost in a shadowy black background."
               placeholder="blur"
               preload
               sizes="(min-width: 1024px) 46vw, (min-width: 768px) 45vw, 100vw"
