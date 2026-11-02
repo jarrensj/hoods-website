@@ -46,21 +46,20 @@ body {
 }
 
 /* Opening animation (app/_components/intro.tsx). The 51 shows up on black; the
-   view pulls back to three hooded characters side by side, blacked out like
-   shadows, the middle one wearing the 51; then they are lifted up and off one
-   after another as the light comes up.
-   Timeline: 0–0.4s 51 on black · 0.4–1.1s pull back to the three ·
-   1.15–2.2s lifted off (left, right, then the 51) · 1.15–2.2s light comes up. */
+   view pulls back to all 51 hooded characters as black shadows, the one in
+   front wearing the 51 and a crowd of 50 behind; then they are lifted up and
+   off, back rows first, as the light comes up.
+   Timeline: 0–0.4s 51 on black · 0.4–1.1s pull back to the crowd ·
+   1.05–2.3s lifted off, the 51 last · 1.1–2.3s light comes up. */
 .intro {
-  /* Width of one character. Three side by side fit a desktop screen; on a
-     phone the outer two run partly off the edges. */
-  --figure: min(40vw, 46vh);
+  /* Width of the character in front. */
+  --lead: min(60vw, 46vh);
   position: fixed;
   inset: 0;
   z-index: 50;
   overflow: hidden;
   pointer-events: none;
-  animation: intro-done 0s 2.25s forwards;
+  animation: intro-done 0s 2.35s forwards;
 }
 
 /* Darkness over the site: solid at first, lifting as the characters leave. */
@@ -69,75 +68,80 @@ body {
   position: absolute;
   inset: 0;
   background: var(--ink);
-  animation: intro-light 2.2s linear forwards;
+  animation: intro-light 2.3s linear forwards;
 }
 
-/* The characters stand on the bottom edge with the cloak below the bust off
-   screen. Two copies of this row are stacked: the shapes, and the 51 on top. */
-.intro-row {
+/* Pulls back from the front character's face, where the 51 sits, so the 51
+   holds still on screen while everyone shrinks into place around it. */
+.intro-crowd {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% calc(100% - var(--lead) * 0.56);
+  animation: intro-pull-back 1.1s linear forwards;
+}
+
+/* One character: a box cut to the traced outline. Placement comes from the
+   component (wide layout by default, tall layout on portrait screens). The
+   bust stands on its row line with the rest of the cloak below it; rows
+   further back are a shade lighter so the outlines read against each other. */
+.intro-figure {
+  --x: var(--wx);
+  --y: var(--wy);
+  --w: var(--ww);
+  --back: var(--wb);
+  position: absolute;
+  left: calc(var(--x) * 1%);
+  bottom: calc(var(--y) * 1vh - var(--w) * 0.12vw);
+  width: calc(var(--w) * 1vw);
+  aspect-ratio: 100 / 130;
+  translate: -50% 0;
+  scale: var(--flip) 1;
+  transform-origin: 50% 60%;
+  background: color-mix(in srgb, var(--paper) calc(var(--back) * 9%), var(--ink));
+  -webkit-mask: var(--figure-mask) center / 100% 100% no-repeat;
+  mask: var(--figure-mask) center / 100% 100% no-repeat;
+  animation: intro-lift 0.65s calc(1.05s + (1 - var(--back)) * 0.45s + var(--jitter) * 0.15s) both;
+}
+
+@media (max-aspect-ratio: 1 / 1) {
+  .intro-figure {
+    --x: var(--tx);
+    --y: var(--ty);
+    --w: var(--tw);
+    --back: var(--tb);
+  }
+}
+
+/* The character in front, standing on the bottom edge. Its spot is repeated
+   outside the crowd to carry the 51, and both leave together, last. */
+.intro-lead {
   position: absolute;
   left: 50%;
-  bottom: calc(var(--figure) * -0.32);
-  display: flex;
+  bottom: calc(var(--lead) * -0.12);
+  width: var(--lead);
+  aspect-ratio: 100 / 130;
   translate: -50% 0;
-}
-
-.intro-slot {
-  position: relative;
-  flex: none;
-  width: var(--figure);
-  aspect-ratio: 100 / 150;
-  margin-inline: calc(var(--figure) * 0.03);
-  transform-box: border-box;
+  scale: 1;
   transform-origin: 50% 60%;
+  background: var(--ink);
+  --tilt: -6deg;
+  animation: intro-lift 0.7s 1.6s both;
 }
 
-/* The middle character in front, so its shadow falls over its neighbours as
-   they tilt past each other. */
-.intro-slot:nth-child(2) {
-  z-index: 1;
-}
-
-.intro-figure {
-  overflow: visible;
-  fill: var(--ink);
-  filter: drop-shadow(0 1.5rem 2.5rem rgb(0 0 0 / 0.6));
-}
-
-/* Pulls back from the middle character's face, where the 51 sits, so the 51
-   holds still on screen while the characters shrink into place around it. */
-.intro-crowd {
-  transform-origin: 50% 41.3%;
-  animation: intro-pull-back 1.1s linear forwards;
+.intro-lead-mark {
+  background: none;
 }
 
 .intro-mark {
   position: absolute;
-  top: 41.3%;
+  top: 47.7%;
   left: 50%;
   translate: -50% -50%;
   color: var(--paper);
   font-family: var(--font-alfa-slab);
-  font-size: calc(var(--figure) * 0.34);
+  font-size: calc(var(--lead) * 0.34);
   line-height: 1;
   animation: intro-mark 1.1s linear both;
-}
-
-/* Each character dips as if grabbed, then is yanked up and off with a tilt:
-   left, then right, then the one with the 51. */
-.intro-lift-1 {
-  --tilt: -14deg;
-  animation: intro-lift 0.8s 1.15s both;
-}
-
-.intro-lift-3 {
-  --tilt: 10deg;
-  animation: intro-lift 0.8s 1.25s both;
-}
-
-.intro-lift-2 {
-  --tilt: -6deg;
-  animation: intro-lift 0.8s 1.4s both;
 }
 
 /* Roughly even steps in zoom, easing into the final size. */
@@ -160,6 +164,7 @@ body {
   }
 }
 
+/* Dips as if grabbed, then is yanked up and off with a tilt. */
 @keyframes intro-lift {
   0% {
     transform: translateY(0) rotate(0deg);
@@ -174,8 +179,8 @@ body {
   }
 }
 
-/* The 51 shows up large on the black, then settles onto the middle face as
-   the characters pull back. */
+/* The 51 shows up large on the black, then settles onto the front face as the
+   crowd pulls back. */
 @keyframes intro-mark {
   0% {
     opacity: 0;
@@ -195,11 +200,10 @@ body {
 
 @keyframes intro-light {
   0%,
-  18% {
+  17% {
     opacity: 1;
   }
-  50%,
-  52% {
+  48% {
     opacity: 0.4;
   }
   100% {
