@@ -49,8 +49,9 @@ body {
    view pulls back to all 51 hooded characters as black shadows, the one in
    front wearing the 51 and a crowd of 50 behind; then they are lifted up and
    off, back rows first, as the light comes up.
-   Timeline: 0–0.4s 51 on black · 0.4–1.1s pull back to the crowd ·
-   1.05–2.3s lifted off, the 51 last · 1.1–2.3s light comes up. */
+   Timeline: 0–0.4s 51 on black · 0.4–1.1s pull back to the crowd, which
+   fades in by 0.65s · 0.65–2.3s light comes up · 1.05–2.3s lifted off, the
+   51 last. */
 .intro {
   /* Width of the character in front. */
   --lead: min(60vw, 46vh);
@@ -77,11 +78,20 @@ body {
   position: absolute;
   inset: 0;
   transform-origin: 50% calc(100% - var(--lead) * 0.56);
-  animation: intro-pull-back 1.1s linear forwards;
+  animation:
+    intro-pull-back 1.1s linear forwards,
+    intro-crowd-in 0.25s 0.38s linear both;
 }
 
-/* One character: a box cut to the traced outline. Placement comes from the
-   component (wide layout by default, tall layout on portrait screens). The
+/* The shared outline, defined once and drawn by every character. */
+.intro-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* One character: the traced outline as a vector shape. Placement comes from
+   the component (wide layout by default, tall layout on portrait screens). The
    bust stands on its row line with the rest of the cloak below it; rows
    further back are a shade lighter so the outlines read against each other. */
 .intro-figure {
@@ -97,10 +107,15 @@ body {
   translate: -50% 0;
   scale: var(--flip) 1;
   transform-origin: 50% 60%;
-  background: color-mix(in srgb, var(--paper) calc(var(--back) * 9%), var(--ink));
-  -webkit-mask: var(--figure-mask) center / 100% 100% no-repeat;
-  mask: var(--figure-mask) center / 100% 100% no-repeat;
+  fill: color-mix(in srgb, var(--paper) calc(var(--back) * 9%), var(--ink));
   animation: intro-lift 0.65s calc(1.05s + (1 - var(--back)) * 0.45s + var(--jitter) * 0.15s) both;
+}
+
+.intro-figure svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-aspect-ratio: 1 / 1) {
@@ -137,13 +152,9 @@ body {
   translate: -50% 0;
   scale: 1;
   transform-origin: 50% 60%;
-  background: var(--ink);
+  fill: var(--ink);
   --tilt: -6deg;
   animation: intro-lift 0.7s 1.6s both;
-}
-
-.intro-lead-mark {
-  background: none;
 }
 
 .intro-mark {
@@ -158,35 +169,45 @@ body {
   animation: intro-mark 1.1s linear both;
 }
 
-/* Roughly even steps in zoom, easing into the final size. */
+/* One smooth curve from 3x to 1x. Scale is eased so the zoom speed as the eye
+   sees it (relative change) picks up gently and settles into the final size,
+   rather than lurching at keyframe steps. Kept at 3x: the browser draws every
+   character at the zoomed size, and starting much further in runs it out of
+   memory on desktop-sized windows, where it drops to about 15fps. */
 @keyframes intro-pull-back {
   0%,
   36% {
-    transform: scale(8);
-  }
-  52% {
-    transform: scale(4.6);
-  }
-  68% {
-    transform: scale(2.6);
-  }
-  84% {
-    transform: scale(1.5);
+    transform: scale(3);
+    animation-timing-function: cubic-bezier(0.21, 0.15, 0.38, 1);
   }
   100% {
     transform: scale(1);
   }
 }
 
-/* Dips as if grabbed, then is yanked up and off with a tilt. */
+/* At 3x the neighbours of the front character are on screen, so the crowd
+   stays hidden while the 51 is shown alone and fades in as the view pulls
+   back. */
+@keyframes intro-crowd-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dips as if grabbed, then is pulled up and off with a tilt. The rise picks up
+   speed quickly (no long hang at the bottom) and leaves without a huge jump
+   per frame at the end, which reads as stutter. */
 @keyframes intro-lift {
   0% {
     transform: translateY(0) rotate(0deg);
     animation-timing-function: ease-out;
   }
-  16% {
+  12% {
     transform: translateY(2.5vh) rotate(calc(var(--tilt) * -0.15));
-    animation-timing-function: cubic-bezier(0.55, 0, 0.8, 0.2);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.6, 0.6);
   }
   100% {
     transform: translateY(calc(-100vh - 100%)) rotate(var(--tilt));
@@ -212,9 +233,11 @@ body {
   }
 }
 
+/* Stays fully dark until the crowd has faded in, so the site never shows
+   through half-faded characters. */
 @keyframes intro-light {
   0%,
-  17% {
+  28% {
     opacity: 1;
   }
   48% {
