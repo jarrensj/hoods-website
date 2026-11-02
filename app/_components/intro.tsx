@@ -64,6 +64,15 @@ const CROWD = wide.map((spot, i) => ({
   "--jitter": round(extra()),
 })) as CSSProperties[];
 
+// Numbers 1 to 50 handed out across the crowd in a shuffled order; the 51 is
+// worn by the character in front.
+const shuffle = random(50);
+const NUMBERS = Array.from({ length: CROWD.length }, (_, i) => i + 1);
+for (let i = NUMBERS.length - 1; i > 0; i--) {
+  const j = Math.floor(shuffle() * (i + 1));
+  [NUMBERS[i], NUMBERS[j]] = [NUMBERS[j], NUMBERS[i]];
+}
+
 export default function Intro() {
   return (
     <div
@@ -73,7 +82,9 @@ export default function Intro() {
     >
       <div className="intro-crowd">
         {CROWD.map((style, i) => (
-          <span key={i} className="intro-figure" style={style} />
+          <span key={i} className="intro-figure" style={style}>
+            <span className="intro-number">{NUMBERS[i]}</span>
+          </span>
         ))}
         <span className="intro-figure intro-lead" />
       </div>

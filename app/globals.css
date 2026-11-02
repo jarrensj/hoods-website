@@ -112,6 +112,20 @@ body {
   }
 }
 
+/* Each character's number on its face, in the same spot and size as the 51,
+   turned back the right way round on flipped characters. */
+.intro-number {
+  position: absolute;
+  top: 47.7%;
+  left: 50%;
+  translate: -50% -50%;
+  scale: var(--flip) 1;
+  color: var(--paper);
+  font-family: var(--font-alfa-slab);
+  font-size: calc(var(--w) * 0.34vw);
+  line-height: 1;
+}
+
 /* The character in front, standing on the bottom edge. Its spot is repeated
    outside the crowd to carry the 51, and both leave together, last. */
 .intro-lead {
