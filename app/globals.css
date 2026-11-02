@@ -9,6 +9,7 @@
   --paper: #eef3ee; /* text, rules, outlines, buttons */
   --mist: #9fb8ad; /* secondary labels */
   --ink: #000000; /* the intro's shadows and darkness */
+  --charcoal: #1e1e1e; /* the intro's numbers: the grey of the HOODS lettering in the artwork */
 }
 
 @theme inline {
@@ -134,7 +135,7 @@ body {
   left: 50%;
   translate: -50% -50%;
   scale: var(--flip) 1;
-  color: var(--paper);
+  color: var(--charcoal);
   font-family: var(--font-alfa-slab);
   font-size: calc(var(--w) * 0.34vw);
   line-height: 1;
@@ -161,7 +162,7 @@ body {
   top: 47.7%;
   left: 50%;
   translate: -50% -50%;
-  color: var(--paper);
+  color: var(--charcoal);
   font-family: var(--font-alfa-slab);
   font-size: calc(var(--lead) * 0.34);
   line-height: 1;
