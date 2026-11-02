@@ -7,7 +7,7 @@ import { useConnect, useConnection, useConnectors, useDisconnect, useSwitchChain
 import { chain } from "@/lib/chain";
 
 const buttonClass =
-  "rounded-full border-2 border-ink bg-paper px-4 py-2 text-xs font-black uppercase tracking-widest text-ink shadow-[3px_3px_0_0_var(--ink)] transition-transform hover:-translate-y-px disabled:cursor-wait disabled:opacity-70 sm:text-sm";
+  "whitespace-nowrap rounded-full border-2 border-paper bg-paper px-5 py-2.5 text-xs font-black uppercase tracking-[0.12em] text-navy transition-transform duration-150 hover:-translate-y-px disabled:cursor-wait disabled:opacity-70";
 
 const itemClass =
   "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left font-bold hover:bg-paper/10 focus-visible:bg-paper/10 focus-visible:outline-none disabled:cursor-wait disabled:opacity-60";
@@ -96,7 +96,7 @@ export default function ConnectWallet() {
       </button>
 
       {open && (
-        <div id={menuId} className="ink-panel absolute right-0 top-full z-10 mt-3 w-72 p-3">
+        <div id={menuId} className="absolute right-0 top-full z-10 mt-3 w-72 bg-navy p-3 text-paper">
           {status === "connected" && address ? (
             <>
               <p className="px-3 pt-1 text-xs font-bold uppercase tracking-widest text-paper/60">

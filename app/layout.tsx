@@ -28,13 +28,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${montserrat.variable} ${alfaSlab.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        {/* Filter used by .ink-panel to roughen panel edges. */}
-        <svg aria-hidden="true" className="absolute h-0 w-0">
-          <filter id="rough-edge">
-            <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="5" />
-            <feDisplacementMap in="SourceGraphic" scale="7" />
-          </filter>
-        </svg>
         <Intro />
         <Providers>{children}</Providers>
         <Footer />

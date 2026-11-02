@@ -1,48 +1,31 @@
 @import "tailwindcss";
 
-/* Palette taken from the unrevealed artwork: blood-red gradient, black hood, white numerals. */
+/* Evergreen palette. The artwork stays red; no red is used anywhere else. */
 :root {
-  --blood: #3d0000;
-  --red: #ff0000;
-  --ink: #000000;
-  --paper: #ffffff;
+  --evergreen: #0f3328; /* page */
+  --navy: #0a211c; /* mint card, artwork frame, footer, wallet menu */
+  --forest: #1c5a44; /* progress track */
+  --leaf: #5ad18f; /* progress fill */
+  --paper: #eef3ee; /* text, rules, outlines, buttons */
+  --mist: #9fb8ad; /* secondary labels */
+  --ink: #000000; /* the intro's shadows and darkness */
 }
 
 @theme inline {
-  --color-blood: var(--blood);
-  --color-red: var(--red);
-  --color-ink: var(--ink);
+  --color-evergreen: var(--evergreen);
+  --color-navy: var(--navy);
+  --color-forest: var(--forest);
+  --color-leaf: var(--leaf);
   --color-paper: var(--paper);
+  --color-mist: var(--mist);
+  --color-ink: var(--ink);
   --font-sans: var(--font-montserrat);
   --font-slab: var(--font-alfa-slab);
 }
 
 body {
-  color: var(--ink);
-  background-color: var(--red);
-  background-image: linear-gradient(to bottom, var(--blood), var(--red) 70vh);
-  background-repeat: no-repeat;
-}
-
-/* In the components layer so utilities (absolute, padding, …) can override it. */
-@layer components {
-  /* Black panel with a wobbly, hand-drawn edge, like the hood in the artwork.
-     The edge is drawn on a background layer so text inside stays crisp. */
-  .ink-panel {
-    position: relative;
-    isolation: isolate;
-    color: var(--paper);
-  }
-
-  .ink-panel::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: var(--ink);
-    border-radius: 0.5rem;
-    filter: url(#rough-edge);
-  }
+  color: var(--paper);
+  background-color: var(--evergreen);
 }
 
 /* Opening animation (app/_components/intro.tsx). The 51 shows up on black; the
