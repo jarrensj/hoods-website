@@ -48,7 +48,11 @@ export default function MintCard() {
         disabled
         className="mt-7 w-full cursor-not-allowed bg-paper py-[22px] text-lg font-black uppercase tracking-[0.06em] text-navy"
       >
-        Mint opens soon
+        Mint opens{" "}
+        <time dateTime="2026-11-23T13:00-08:00">
+          Nov 23
+          <span className="mt-1.5 block text-[13px] tracking-[0.14em]">1:00 PM PST</span>
+        </time>
       </button>
     </div>
   );
