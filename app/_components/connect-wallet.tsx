@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useId, useRef, useState } from "react";
 import type { BaseError } from "viem";
 import { useConnect, useConnection, useConnectors, useDisconnect, useSwitchChain } from "wagmi";
-import { chain } from "@/lib/chain";
+import { chain, siteChainById, type SiteChain } from "@/lib/chain";
 
 const buttonClass =
   "whitespace-nowrap rounded-full border-2 border-paper bg-paper px-5 py-2.5 text-xs font-black uppercase tracking-[0.12em] text-navy transition-transform duration-150 hover:-translate-y-px disabled:cursor-wait disabled:opacity-70";
@@ -22,7 +22,10 @@ function errorMessage(error: Error | null) {
   return (error as BaseError).shortMessage ?? error.message;
 }
 
-export default function ConnectWallet() {
+// `targetChainId` is the network this page needs: the site's by default, testnet
+// on the /testnet tools page.
+export default function ConnectWallet({ targetChainId }: { targetChainId?: SiteChain["id"] }) {
+  const targetChain = targetChainId ? siteChainById(targetChainId) : chain;
   const { address, chainId, status } = useConnection();
   const connectors = useConnectors();
   const connect = useConnect();
@@ -50,14 +53,14 @@ export default function ConnectWallet() {
     };
   }, [open]);
 
-  if (status === "connected" && chainId !== chain.id) {
+  if (status === "connected" && chainId !== targetChain.id) {
     return (
       <div className="flex flex-col items-end gap-1">
         <button
           type="button"
           className={buttonClass}
           disabled={switchChain.isPending}
-          onClick={() => switchChain.switchChain({ chainId: chain.id })}
+          onClick={() => switchChain.switchChain({ chainId: targetChain.id })}
         >
           {switchChain.isPending ? "Check wallet…" : "Switch network"}
         </button>
@@ -100,7 +103,7 @@ export default function ConnectWallet() {
           {status === "connected" && address ? (
             <>
               <p className="px-3 pt-1 text-xs font-bold uppercase tracking-widest text-paper/60">
-                {chain.name}
+                {targetChain.name}
               </p>
               <p className="px-3 pb-2 pt-1 font-slab text-lg">{shortAddress(address)}</p>
               <button
@@ -128,7 +131,7 @@ export default function ConnectWallet() {
                       disabled={connect.isPending}
                       onClick={() =>
                         connect.connect(
-                          { connector, chainId: chain.id },
+                          { connector, chainId: targetChain.id },
                           { onSuccess: () => setOpen(false) },
                         )
                       }

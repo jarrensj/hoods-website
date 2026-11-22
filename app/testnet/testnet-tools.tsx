@@ -13,8 +13,8 @@ import {
 } from "viem";
 import { useBalance, useConfig, useConnection, useReadContract, useReadContracts } from "wagmi";
 import { simulateContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { chain } from "@/lib/chain";
-import { contractAddress, contractUrl, decodeRevert, hoodsAbi, transactionUrl } from "@/lib/contract";
+import { testnetChain as chain } from "@/lib/chain";
+import { addressUrl, decodeRevert, hoodsAbi, testnetContractAddress, transactionUrl } from "@/lib/contract";
 
 type Status = "pending" | "ok" | "success" | "reverted" | "error";
 type LogEntry = { id: number; action: string; status: Status; detail?: string; hash?: Hash };
@@ -65,7 +65,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 export default function TestnetTools() {
   const config = useConfig();
   const { address, chainId, status } = useConnection();
-  const hoodsAddress = contractAddress;
+  const hoodsAddress = testnetContractAddress;
   const hoods = { address: hoodsAddress, abi: hoodsAbi, chainId: chain.id } as const;
   const once = { refetchOnWindowFocus: false, refetchOnReconnect: false } as const;
 
@@ -258,7 +258,7 @@ export default function TestnetTools() {
         </div>
         <dl className="mt-3">
           <Row label="Address">
-            <a href={contractUrl} target="_blank" rel="noopener noreferrer" className="underline">
+            <a href={hoodsAddress && addressUrl(hoodsAddress, chain)} target="_blank" rel="noopener noreferrer" className="underline">
               {hoodsAddress}
             </a>
           </Row>
@@ -463,7 +463,7 @@ export default function TestnetTools() {
                   {entry.detail && <p className="mt-1 break-words">{entry.detail}</p>}
                   {entry.hash && (
                     <a
-                      href={transactionUrl(entry.hash)}
+                      href={transactionUrl(entry.hash, chain)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-1 inline-block break-all underline"
