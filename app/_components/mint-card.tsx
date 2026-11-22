@@ -281,6 +281,11 @@ export default function MintCard() {
           {error}
         </p>
       )}
+
+      {/* Last in the card, so the mint's own feedback above stays next to the button. */}
+      <p className="mt-4 text-center text-[11px] font-extrabold uppercase tracking-[0.16em] text-mist">
+        No promises. No roadmap.
+      </p>
     </div>
   );
 }
