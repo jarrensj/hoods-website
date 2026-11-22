@@ -147,7 +147,9 @@ export default function MintCard() {
         )?.tokenId
       : undefined;
 
-  const minted = totalMinted === undefined ? undefined : Number(totalMinted);
+  // Before a contract address is set nothing can have been minted, so show 0.
+  // With one set, "–" means the count is still loading or couldn't be read.
+  const minted = !hoodsAddress ? 0 : totalMinted === undefined ? undefined : Number(totalMinted);
   const priceLabel = hoodsAddress ? (price === undefined ? "–" : formatEther(price)) : PLANNED_PRICE;
   const stats = [
     { label: "Supply", value: String(SUPPLY) },
