@@ -13,7 +13,7 @@ import {
 import { useBalance, useConfig, useConnection, useReadContract, useReadContracts } from "wagmi";
 import { simulateContract, waitForTransactionReceipt, writeContract } from "wagmi/actions";
 import { chain } from "@/lib/chain";
-import { contractAddress, contractUrl, hoodsAbi, transactionUrl } from "@/lib/contract";
+import { contractAddress, contractUrl, decodeRevert, hoodsAbi, transactionUrl } from "@/lib/contract";
 
 type Status = "pending" | "ok" | "success" | "reverted" | "error";
 type LogEntry = { id: number; action: string; status: Status; detail?: string; hash?: Hash };
@@ -28,7 +28,13 @@ const buttonClass =
 const ghostButtonClass =
   "rounded-full border-2 border-paper px-4 py-2 text-xs font-black uppercase tracking-[0.1em] text-paper enabled:hover:bg-paper enabled:hover:text-navy disabled:cursor-not-allowed disabled:opacity-50";
 
+function formatRevert(revert: { errorName: string; args?: readonly unknown[] }) {
+  return revert.args?.length ? `${revert.errorName}(${revert.args.map(String).join(", ")})` : revert.errorName;
+}
+
 function describeError(error: unknown) {
+  const replayed = decodeRevert(error);
+  if (replayed) return `Reverted: ${formatRevert(replayed)}`;
   if (error instanceof BaseError) {
     const revert = error.walk((cause) => cause instanceof ContractFunctionRevertedError);
     if (revert instanceof ContractFunctionRevertedError) {
@@ -143,8 +149,9 @@ export default function TestnetTools() {
     setBusy(true);
     const label = skipEstimate ? `${action} (gas estimate skipped)` : action;
     const id = addLog(label, "pending", "Confirm in your wallet…");
+    let hash: Hash | undefined;
     try {
-      const hash = await writeContract(config, {
+      hash = await writeContract(config, {
         ...hoods,
         address: hoodsAddress,
         ...request,
@@ -159,7 +166,18 @@ export default function TestnetTools() {
           : { status: "reverted", detail: "Reverted on-chain. Only gas was spent." },
       );
     } catch (error) {
-      updateLog(id, { status: "error", detail: describeError(error) });
+      // Once there's a hash the transaction was sent, so a failure here means it
+      // reverted on-chain (wagmi replays it to find out why).
+      const revert = decodeRevert(error);
+      updateLog(
+        id,
+        hash
+          ? {
+              status: "reverted",
+              detail: `Reverted on-chain${revert ? `: ${formatRevert(revert)}` : ""}. Only gas was spent.`,
+            }
+          : { status: "error", detail: `${describeError(error)} (nothing was sent)` },
+      );
     } finally {
       setBusy(false);
       refresh();
