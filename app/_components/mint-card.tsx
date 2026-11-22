@@ -43,6 +43,11 @@ const mintOpens = (
   </>
 );
 
+// Read the contract when the page loads, not on a timer or when the tab regains
+// focus. A refresh gets fresh numbers. The card also re-reads after this
+// visitor's own mint, or when the pre-send check refuses one.
+const readOnLoad = { refetchOnWindowFocus: false, refetchOnReconnect: false } as const;
+
 const revertMessages: Record<string, string> = {
   MintDisabled: "Minting isn't open right now.",
   AlreadyMinted: "This wallet has already minted.",
@@ -73,7 +78,6 @@ export default function MintCard() {
   const hoodsAddress = contractAddress;
   const hoods = { address: hoodsAddress, abi: hoodsAbi, chainId: chain.id } as const;
 
-  // Polled so the count keeps up with other people's mints.
   const contractState = useReadContracts({
     contracts: [
       { ...hoods, functionName: "MINT_PRICE" },
@@ -81,7 +85,7 @@ export default function MintCard() {
       { ...hoods, functionName: "mintEnabled" },
     ],
     allowFailure: false,
-    query: { enabled: Boolean(contractAddress), refetchInterval: 15_000 },
+    query: { ...readOnLoad, enabled: Boolean(contractAddress) },
   });
   const [price, totalMinted, mintEnabled] =
     (contractState.data as readonly [bigint, bigint, boolean] | undefined) ?? [];
@@ -90,9 +94,13 @@ export default function MintCard() {
     ...hoods,
     functionName: "hasMinted",
     args: address ? [address] : undefined,
-    query: { enabled: Boolean(contractAddress && address) },
+    query: { ...readOnLoad, enabled: Boolean(contractAddress && address) },
   });
-  const balance = useBalance({ address, chainId: chain.id, query: { enabled: Boolean(address) } });
+  const balance = useBalance({
+    address,
+    chainId: chain.id,
+    query: { ...readOnLoad, enabled: Boolean(address) },
+  });
 
   const config = useConfig();
   const switchChain = useSwitchChain();
