@@ -31,8 +31,8 @@ const SUPPLY = 51;
 // different price shows its own.
 const PLANNED_PRICE = "0.0333";
 
-// Shown while minting is closed: before the contract address is set, and while
-// the contract has minting turned off.
+// Shown before the contract address is set. Once it is, the contract decides:
+// "Mint is disabled" while mintEnabled is false.
 const mintOpens = (
   <>
     Mint opens{" "}
@@ -49,7 +49,7 @@ const mintOpens = (
 const readOnLoad = { refetchOnWindowFocus: false, refetchOnReconnect: false } as const;
 
 const revertMessages: Record<string, string> = {
-  MintDisabled: "Minting isn't open right now.",
+  MintDisabled: "Mint is disabled.",
   AlreadyMinted: "This wallet has already minted.",
   MaxSupplyReached: `All ${SUPPLY} HOODS have been minted.`,
   WrongMintPrice: "The amount sent didn't match the mint price.",
@@ -163,7 +163,7 @@ export default function MintCard() {
   } else if (minted >= SUPPLY) {
     label = "Sold out";
   } else if (!mintEnabled) {
-    label = mintOpens;
+    label = "Mint is disabled";
   } else if (status !== "connected" || !address) {
     label = "Connect a wallet to mint";
   } else if (chainId !== chain.id) {
