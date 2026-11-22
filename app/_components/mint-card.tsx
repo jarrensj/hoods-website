@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BaseError,
   ContractFunctionRevertedError,
@@ -30,6 +30,18 @@ const SUPPLY = 51;
 // card reads MINT_PRICE from the contract, so a testnet contract with a
 // different price shows its own.
 const PLANNED_PRICE = "0.0333";
+
+// Shown while minting is closed: before the contract address is set, and while
+// the contract has minting turned off.
+const mintOpens = (
+  <>
+    Mint opens{" "}
+    <time dateTime="2026-11-23T13:00-08:00">
+      Nov 23
+      <span className="mt-1.5 block text-[13px] tracking-[0.14em]">1:00 PM PST</span>
+    </time>
+  </>
+);
 
 const revertMessages: Record<string, string> = {
   MintDisabled: "Minting isn't open right now.",
@@ -124,10 +136,10 @@ export default function MintCard() {
   ];
 
   // What the button says, and what it does (nothing when disabled).
-  let label: string;
+  let label: ReactNode;
   let onClick: (() => void) | undefined;
   if (!hoodsAddress) {
-    label = "Mint opens soon";
+    label = mintOpens;
   } else if (contractState.isPending) {
     label = "Loading…";
   } else if (contractState.isError || price === undefined || minted === undefined) {
@@ -143,7 +155,7 @@ export default function MintCard() {
   } else if (minted >= SUPPLY) {
     label = "Sold out";
   } else if (!mintEnabled) {
-    label = "Mint opens soon";
+    label = mintOpens;
   } else if (status !== "connected" || !address) {
     label = "Connect a wallet to mint";
   } else if (chainId !== chain.id) {
