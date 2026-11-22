@@ -5,6 +5,7 @@ import {
   BaseError,
   ContractFunctionRevertedError,
   formatEther,
+  isAddress,
   isAddressEqual,
   parseEther,
   type Address,
@@ -17,6 +18,9 @@ import { contractAddress, contractUrl, decodeRevert, hoodsAbi, transactionUrl } 
 
 type Status = "pending" | "ok" | "success" | "reverted" | "error";
 type LogEntry = { id: number; action: string; status: Status; detail?: string; hash?: Hash };
+
+const DEPLOYED_BASE_URI = "https://hoodspfp.s3.amazonaws.com/";
+const DEPLOYED_ROYALTY_BPS = "510";
 
 // Gas limit used when skipping the estimate, so a call that will revert still
 // gets sent and reverts on-chain. Comfortably above what mint and the owner
@@ -71,12 +75,20 @@ export default function TestnetTools() {
       { ...hoods, functionName: "MINT_PRICE" },
       { ...hoods, functionName: "totalMinted" },
       { ...hoods, functionName: "MAX_SUPPLY" },
+      // With a sale price of 10,000 wei, the royalty amount is the rate in basis points.
+      { ...hoods, functionName: "royaltyInfo", args: [BigInt(1), BigInt(10_000)] },
+      { ...hoods, functionName: "contractURI" },
     ],
     allowFailure: false,
     query: { ...once, enabled: Boolean(hoodsAddress) },
   });
-  const [owner, mintEnabled, price, totalMinted, maxSupply] =
-    (state.data as readonly [Address, boolean, bigint, bigint, bigint] | undefined) ?? [];
+  const [owner, mintEnabled, price, totalMinted, maxSupply, royalty, contractURI] =
+    (state.data as
+      | readonly [Address, boolean, bigint, bigint, bigint, readonly [Address, bigint], string]
+      | undefined) ?? [];
+  const [royaltyReceiver, royaltyBps] = royalty ?? [];
+  // contractURI is {baseURI}contract.json, so the base URI is what comes before it.
+  const baseURI = contractURI?.endsWith("contract.json") ? contractURI.slice(0, -"contract.json".length) : undefined;
   const contractBalance = useBalance({
     address: hoodsAddress,
     chainId: chain.id,
@@ -98,6 +110,10 @@ export default function TestnetTools() {
   };
 
   const [amount, setAmount] = useState("");
+  // Empty until someone types, which means "the contract's current value".
+  const [royaltyReceiverInput, setRoyaltyReceiverInput] = useState("");
+  const [royaltyBpsInput, setRoyaltyBpsInput] = useState("");
+  const [baseURIInput, setBaseURIInput] = useState("");
   const [skipEstimate, setSkipEstimate] = useState(false);
   const [busy, setBusy] = useState(false);
   const [log, setLog] = useState<LogEntry[]>([]);
@@ -110,6 +126,9 @@ export default function TestnetTools() {
 
   // The amount box is empty until someone types, which means "the contract's price".
   const amountText = amount === "" && price !== undefined ? formatEther(price) : amount;
+  const receiverText = royaltyReceiverInput === "" ? (royaltyReceiver ?? "") : royaltyReceiverInput;
+  const bpsText = royaltyBpsInput === "" ? (royaltyBps?.toString() ?? "") : royaltyBpsInput;
+  const baseURIText = baseURIInput === "" ? (baseURI ?? "") : baseURIInput;
 
   function addLog(action: string, status: Status, detail?: string) {
     const id = nextId.current++;
@@ -184,6 +203,25 @@ export default function TestnetTools() {
     }
   }
 
+  function sendRoyalty() {
+    const receiver = receiverText.trim();
+    const bps = bpsText.trim();
+    if (!isAddress(receiver)) {
+      addLog(`setDefaultRoyalty(${receiver || "–"}, ${bps || "–"})`, "error", "The receiver isn't a valid address.");
+      return;
+    }
+    if (!/^\d+$/.test(bps)) {
+      addLog(`setDefaultRoyalty(${receiver}, ${bps || "–"})`, "error", "The rate must be a whole number of basis points.");
+      return;
+    }
+    send(`setDefaultRoyalty(${receiver}, ${bps})`, { functionName: "setDefaultRoyalty", args: [receiver, BigInt(bps)] });
+  }
+
+  function sendBaseURI() {
+    const value = baseURIText.trim();
+    send(`setBaseURI("${value}")`, { functionName: "setBaseURI", args: [value] });
+  }
+
   function sendMint() {
     const value = parseAmount();
     if (value === undefined) return;
@@ -230,6 +268,11 @@ export default function TestnetTools() {
             {totalMinted === undefined ? "–" : `${totalMinted} of ${maxSupply ?? "–"}`}
           </Row>
           <Row label="Balance">{contractBalance.data ? `${formatEther(contractBalance.data.value)} ETH` : "–"}</Row>
+          <Row label="Royalty">
+            {royaltyBps === undefined ? "–" : `${Number(royaltyBps) / 100}% (${royaltyBps} bps) to ${royaltyReceiver}`}
+          </Row>
+          <Row label="Base URI">{baseURI ?? "–"}</Row>
+          <Row label="contractURI">{contractURI ?? "–"}</Row>
         </dl>
         {state.isError && (
           <p role="alert" className="mt-3 text-sm font-semibold">
@@ -321,6 +364,61 @@ export default function TestnetTools() {
               onClick={() => send("withdraw()", { functionName: "withdraw" })}
             >
               Withdraw
+            </button>
+          </div>
+
+          <h3 className="mt-7 text-xs font-black uppercase tracking-[0.14em]">Royalty</h3>
+          <label className="mt-3 block text-xs font-extrabold uppercase tracking-[0.12em] text-mist" htmlFor="royalty-receiver">
+            Receiver
+          </label>
+          <input
+            id="royalty-receiver"
+            value={receiverText}
+            onChange={(event) => setRoyaltyReceiverInput(event.target.value)}
+            spellCheck={false}
+            className="mt-2 w-full bg-paper px-3 py-2.5 font-semibold text-navy"
+          />
+          <label className="mt-3 block text-xs font-extrabold uppercase tracking-[0.12em] text-mist" htmlFor="royalty-bps">
+            Rate in basis points{/^\d+$/.test(bpsText.trim()) ? ` (${Number(bpsText.trim()) / 100}%)` : ""}
+          </label>
+          <input
+            id="royalty-bps"
+            inputMode="numeric"
+            value={bpsText}
+            onChange={(event) => setRoyaltyBpsInput(event.target.value)}
+            className="mt-2 w-full bg-paper px-3 py-2.5 font-semibold text-navy"
+          />
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className={ghostButtonClass} onClick={() => setRoyaltyBpsInput(DEPLOYED_ROYALTY_BPS)}>
+              5.1% (510)
+            </button>
+            <button type="button" className={ghostButtonClass} onClick={() => setRoyaltyBpsInput("10001")}>
+              Over 100% (10001)
+            </button>
+            <button type="button" className={buttonClass} disabled={!canSend} onClick={sendRoyalty}>
+              Set royalty
+            </button>
+          </div>
+
+          <h3 className="mt-7 text-xs font-black uppercase tracking-[0.14em]">Base URI</h3>
+          <input
+            aria-label="Base URI"
+            value={baseURIText}
+            onChange={(event) => setBaseURIInput(event.target.value)}
+            spellCheck={false}
+            className="mt-3 w-full bg-paper px-3 py-2.5 font-semibold text-navy"
+          />
+          <p className="mt-2 break-all text-sm text-mist">
+            {baseURIText.trim() && !baseURIText.trim().endsWith("/")
+              ? `No trailing "/": token 1's metadata would be ${baseURIText.trim()}1, which is broken.`
+              : `Token 1's metadata: ${baseURIText.trim()}1`}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" className={ghostButtonClass} onClick={() => setBaseURIInput(DEPLOYED_BASE_URI)}>
+              Restore {DEPLOYED_BASE_URI}
+            </button>
+            <button type="button" className={buttonClass} disabled={!canSend} onClick={sendBaseURI}>
+              Set base URI
             </button>
           </div>
         </section>
