@@ -19,7 +19,6 @@ import { contractAddress, contractUrl, decodeRevert, hoodsAbi, transactionUrl } 
 type Status = "pending" | "ok" | "success" | "reverted" | "error";
 type LogEntry = { id: number; action: string; status: Status; detail?: string; hash?: Hash };
 
-// The base URI the contract was deployed with; the reveal never changes it.
 const DEPLOYED_BASE_URI = "https://hoodspfp.s3.amazonaws.com/";
 const DEPLOYED_ROYALTY_BPS = "510";
 
