@@ -1,5 +1,5 @@
 import { BaseError, decodeErrorResult, isAddress, type Abi, type Address, type Hex } from "viem";
-import { chain } from "./chain";
+import { chain, type SiteChain } from "./chain";
 import hoodsAbiJson from "./contracts/Hoods.abi.json";
 
 const configured = process.env.NEXT_PUBLIC_HOODS_CONTRACT_ADDRESS;
@@ -13,13 +13,29 @@ export const contractAddress: Address | undefined =
 // WEBSITE.md). Copy it again whenever the contract's interface changes.
 export const hoodsAbi = hoodsAbiJson as Abi;
 
-// The contract's page on the network's block explorer.
-export const contractUrl =
-  contractAddress && `${chain.blockExplorers.default.url}/address/${contractAddress}`;
+const testnetConfigured = process.env.NEXT_PUBLIC_HOODS_TESTNET_CONTRACT_ADDRESS;
 
-// A transaction's page on the network's block explorer.
-export function transactionUrl(hash: string) {
-  return `${chain.blockExplorers.default.url}/tx/${hash}`;
+// The testnet contract the /testnet tools page works on. When it isn't set and
+// the site itself is on testnet, that's the site's contract, so previews need no
+// extra setting.
+export const testnetContractAddress: Address | undefined =
+  testnetConfigured && isAddress(testnetConfigured)
+    ? testnetConfigured
+    : chain.testnet
+      ? contractAddress
+      : undefined;
+
+// A contract's page on a network's block explorer.
+export function addressUrl(address: string, on: SiteChain = chain) {
+  return `${on.blockExplorers.default.url}/address/${address}`;
+}
+
+// The site's contract on its network's block explorer.
+export const contractUrl = contractAddress && addressUrl(contractAddress);
+
+// A transaction's page on a network's block explorer.
+export function transactionUrl(hash: string, on: SiteChain = chain) {
+  return `${on.blockExplorers.default.url}/tx/${hash}`;
 }
 
 // When a sent transaction reverts, wagmi's waitForTransactionReceipt replays it
