@@ -22,7 +22,7 @@ import {
 } from "wagmi";
 import { simulateContract } from "wagmi/actions";
 import { chain } from "@/lib/chain";
-import { contractAddress, hoodsAbi, transactionUrl } from "@/lib/contract";
+import { contractAddress, decodeRevert, hoodsAbi, transactionUrl } from "@/lib/contract";
 
 const SUPPLY = 51;
 
@@ -72,6 +72,16 @@ function mintErrorMessage(error: Error | null) {
   return error.shortMessage;
 }
 
+// The mint was sent but failed on-chain. Name the contract's reason if the
+// replayed revert data carries one.
+function revertedMessage(error: Error | null) {
+  if (!error) return null;
+  const revert = decodeRevert(error);
+  if (!revert && !/revert/i.test(error.message)) return mintErrorMessage(error);
+  const reason = revert ? (revertMessages[revert.errorName] ?? `${revert.errorName}.`) : null;
+  return ["The mint transaction failed on-chain.", reason, "Only gas was spent."].filter(Boolean).join(" ");
+}
+
 export default function MintCard() {
   const { address, chainId, status } = useConnection();
   // A local copy, so TypeScript keeps the "is set" check inside callbacks.
@@ -111,16 +121,18 @@ export default function MintCard() {
   const receipt = useWaitForTransactionReceipt({ hash: mint.data, chainId: chain.id });
 
   // A finished mint changes the count, this wallet's hasMinted, and its balance.
+  // So does a failed one: it usually means the contract changed since the page
+  // loaded (sold out, say), and it cost gas.
   const { refetch: refetchContractState } = contractState;
   const { refetch: refetchHasMinted } = hasMinted;
   const { refetch: refetchBalance } = balance;
-  const minedHash = receipt.data?.transactionHash;
+  const settledHash = receipt.isSuccess || receipt.isError ? mint.data : undefined;
   useEffect(() => {
-    if (!minedHash) return;
+    if (!settledHash) return;
     refetchContractState();
     refetchHasMinted();
     refetchBalance();
-  }, [minedHash, refetchContractState, refetchHasMinted, refetchBalance]);
+  }, [settledHash, refetchContractState, refetchHasMinted, refetchBalance]);
 
   // A different wallet starts fresh.
   const { reset: resetMint } = mint;
@@ -199,14 +211,9 @@ export default function MintCard() {
   }
 
   const error =
-    receipt.data?.status === "reverted"
-      ? "The mint transaction failed. Your ETH wasn't spent beyond gas."
-      : mintErrorMessage(
-          (preflight && preflight.address === address ? preflight.error : null) ??
-            mint.error ??
-            receipt.error ??
-            switchChain.error,
-        );
+    mintErrorMessage(
+      (preflight && preflight.address === address ? preflight.error : null) ?? mint.error ?? switchChain.error,
+    ) ?? revertedMessage(receipt.error);
 
   return (
     <div className="bg-navy p-6 text-paper sm:p-8">
