@@ -51,7 +51,7 @@ const readOnLoad = { refetchOnWindowFocus: false, refetchOnReconnect: false } as
 
 const revertMessages: Record<string, string> = {
   MintDisabled: "Mint is disabled.",
-  AlreadyMinted: "This wallet has already minted.",
+  AlreadyMinted: "This wallet has already minted. It's one mint per wallet.",
   MaxSupplyReached: `All ${SUPPLY} HOODS have been minted.`,
   WrongMintPrice: "The amount sent didn't match the mint price.",
 };
@@ -295,7 +295,7 @@ export default function MintCard() {
           </a>
         </p>
       ) : hasMinted.data === true ? (
-        <p className="mt-4 text-sm font-semibold text-mist">This wallet has already minted its HOODS.</p>
+        <p className="mt-4 text-sm font-semibold text-mist">This wallet has already minted.</p>
       ) : null}
 
       {error && (
