@@ -5,6 +5,9 @@ import unrevealed from "@/public/unrevealed.jpg";
 import ConnectWallet from "./_components/connect-wallet";
 import MintCard from "./_components/mint-card";
 
+// The HOODS collection on OpenSea.
+const openSeaUrl = "https://opensea.io/collection/51-hoods";
+
 const facts = [
   {
     figure: "51",
@@ -32,6 +35,19 @@ function XLink({ handle, children }: { handle: string; children: React.ReactNode
       className="font-extrabold underline decoration-2 underline-offset-[5px] hover:decoration-[3px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
     >
       {children}
+    </a>
+  );
+}
+
+function PillLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-full border-2 border-paper px-[22px] py-3.5 text-[13px] font-black uppercase tracking-[0.12em] hover:bg-paper hover:text-evergreen focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
+    >
+      {children} <span aria-hidden="true">↗</span>
     </a>
   );
 }
@@ -86,9 +102,7 @@ export default function Home() {
         </section>
       </div>
 
-      <section
-        className={`grid gap-[clamp(40px,3.9vw,56px)] px-6 pt-[clamp(80px,8.9vw,128px)] md:grid-cols-3 md:px-16 ${contractUrl ? "" : "pb-[clamp(80px,8.9vw,128px)]"}`}
-      >
+      <section className="grid gap-[clamp(40px,3.9vw,56px)] px-6 pt-[clamp(80px,8.9vw,128px)] md:grid-cols-3 md:px-16">
         {facts.map((fact) => (
           <div key={fact.title} className="border-t-4 border-paper pt-6">
             <p className="font-slab text-[clamp(112px,12.2vw,176px)] leading-[0.9] tracking-[-0.02em]">
@@ -100,19 +114,11 @@ export default function Home() {
         ))}
       </section>
 
-      {/* Only once the contract address is set (see lib/contract.ts). */}
-      {contractUrl && (
-        <div className="flex flex-wrap gap-3 px-6 pb-[clamp(64px,6.7vw,96px)] pt-[clamp(64px,7.8vw,112px)] md:px-16">
-          <a
-            href={contractUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border-2 border-paper px-[22px] py-3.5 text-[13px] font-black uppercase tracking-[0.12em] hover:bg-paper hover:text-evergreen focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-paper"
-          >
-            Contract <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      )}
+      <div className="flex flex-wrap gap-3 px-6 pb-[clamp(64px,6.7vw,96px)] pt-[clamp(64px,7.8vw,112px)] md:px-16">
+        <PillLink href={openSeaUrl}>OpenSea</PillLink>
+        {/* Only once the contract address is set (see lib/contract.ts). */}
+        {contractUrl && <PillLink href={contractUrl}>Contract</PillLink>}
+      </div>
     </main>
   );
 }
