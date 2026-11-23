@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Alfa_Slab_One, Montserrat } from "next/font/google";
 import Footer from "./_components/footer";
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <Intro />
         <Providers>{children}</Providers>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
