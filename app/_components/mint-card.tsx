@@ -181,6 +181,16 @@ export default function MintCard() {
     label = "Confirm in your wallet…";
   } else if (mint.data && receipt.isPending) {
     label = "Minting…";
+  } else if (
+    status === "reconnecting" ||
+    (status === "connecting" && !pickerOpen) ||
+    (address && hasMinted.isPending)
+  ) {
+    // The wallet is still being restored on page load, or whether it has minted
+    // is still loading. Wait, rather than flash "Connect a wallet to mint" or a
+    // mint button that turns into "Minted". A connect started from the wallet
+    // list below keeps that list open instead, to show the wallet's answer.
+    label = "Loading…";
   } else if (mintedTokenId !== undefined || hasMinted.data === true) {
     label = "Minted";
   } else if (minted >= SUPPLY) {
@@ -194,6 +204,9 @@ export default function MintCard() {
   } else if (chainId !== chain.id) {
     label = switchChain.isPending ? "Check your wallet…" : `Switch to ${chain.name}`;
     if (!switchChain.isPending) onClick = () => switchChain.mutate({ chainId: chain.id });
+  } else if (balance.isPending) {
+    // Rather than a mint button that turns into "Not enough ETH".
+    label = "Loading…";
   } else if (balance.data && balance.data.value < price) {
     label = "Not enough ETH";
   } else {
@@ -262,6 +275,9 @@ export default function MintCard() {
         </div>
       </div>
 
+      {/* The button is always at least two lines tall, so a label that wraps on a
+          narrow screen ("Connect a wallet to mint") and one that doesn't ("Not
+          enough ETH") don't change the card's height when one replaces the other. */}
       <div ref={connectRef} className="relative mt-7">
         <button
           type="button"
@@ -269,9 +285,9 @@ export default function MintCard() {
           onClick={onClick}
           aria-expanded={opensPicker ? pickerOpen : undefined}
           aria-controls={opensPicker ? pickerId : undefined}
-          className="w-full bg-paper py-[22px] text-lg font-black uppercase tracking-[0.06em] text-navy transition-transform duration-150 enabled:hover:-translate-y-px disabled:cursor-not-allowed"
+          className="flex min-h-[calc(2lh+44px)] w-full items-center justify-center bg-paper py-[22px] text-lg font-black uppercase tracking-[0.06em] text-navy transition-transform duration-150 enabled:hover:-translate-y-px disabled:cursor-not-allowed"
         >
-          {label}
+          <span className="text-balance">{label}</span>
         </button>
 
         {/* Over what's below rather than pushing it down. */}
