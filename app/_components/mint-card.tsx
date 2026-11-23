@@ -273,7 +273,7 @@ export default function MintCard() {
           </a>
         </p>
       ) : hasMinted.data === true ? (
-        <p className="mt-4 text-sm font-semibold text-mist">This wallet has minted its HOODS.</p>
+        <p className="mt-4 text-sm font-semibold text-mist">This wallet has already minted.</p>
       ) : null}
 
       {error && (
