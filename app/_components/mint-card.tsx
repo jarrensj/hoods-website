@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import {
   BaseError,
   ContractFunctionRevertedError,
@@ -23,6 +23,7 @@ import {
 import { simulateContract } from "wagmi/actions";
 import { chain } from "@/lib/chain";
 import { contractAddress, decodeRevert, hoodsAbi, transactionUrl } from "@/lib/contract";
+import { WalletPicker, useDismiss } from "./connect-wallet";
 
 const SUPPLY = 51;
 
@@ -120,6 +121,13 @@ export default function MintCard() {
   const mint = useWriteContract();
   const receipt = useWaitForTransactionReceipt({ hash: mint.data, chainId: chain.id });
 
+  // "Connect a wallet to mint" opens the same wallet list as the header's
+  // "Connect wallet", just under the button.
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const connectRef = useRef<HTMLDivElement>(null);
+  const pickerId = useId();
+  useDismiss(pickerOpen, setPickerOpen, connectRef);
+
   // A finished mint changes the count, this wallet's hasMinted, and its balance.
   // So does a failed one: it usually means the contract changed since the page
   // loaded (sold out, say), and it cost gas.
@@ -160,6 +168,7 @@ export default function MintCard() {
   // What the button says, and what it does (nothing when disabled).
   let label: ReactNode;
   let onClick: (() => void) | undefined;
+  let opensPicker = false;
   if (!hoodsAddress) {
     label = mintOpens;
   } else if (contractState.isPending) {
@@ -180,6 +189,8 @@ export default function MintCard() {
     label = "Mint is disabled";
   } else if (status !== "connected" || !address) {
     label = "Connect a wallet to mint";
+    opensPicker = true;
+    onClick = () => setPickerOpen((open) => !open);
   } else if (chainId !== chain.id) {
     label = switchChain.isPending ? "Check your wallet…" : `Switch to ${chain.name}`;
     if (!switchChain.isPending) onClick = () => switchChain.mutate({ chainId: chain.id });
@@ -251,14 +262,25 @@ export default function MintCard() {
         </div>
       </div>
 
-      <button
-        type="button"
-        disabled={!onClick}
-        onClick={onClick}
-        className="mt-7 w-full bg-paper py-[22px] text-lg font-black uppercase tracking-[0.06em] text-navy transition-transform duration-150 enabled:hover:-translate-y-px disabled:cursor-not-allowed"
-      >
-        {label}
-      </button>
+      <div ref={connectRef} className="relative mt-7">
+        <button
+          type="button"
+          disabled={!onClick}
+          onClick={onClick}
+          aria-expanded={opensPicker ? pickerOpen : undefined}
+          aria-controls={opensPicker ? pickerId : undefined}
+          className="w-full bg-paper py-[22px] text-lg font-black uppercase tracking-[0.06em] text-navy transition-transform duration-150 enabled:hover:-translate-y-px disabled:cursor-not-allowed"
+        >
+          {label}
+        </button>
+
+        {/* Over what's below rather than pushing it down. */}
+        {opensPicker && pickerOpen && (
+          <div id={pickerId} className="absolute inset-x-0 top-full z-10 mt-2 border-2 border-paper bg-navy p-3 text-paper">
+            <WalletPicker chainId={chain.id} onConnected={() => setPickerOpen(false)} />
+          </div>
+        )}
+      </div>
 
       {mintedTokenId !== undefined && mint.data ? (
         <p role="status" className="mt-4 text-sm font-semibold">
