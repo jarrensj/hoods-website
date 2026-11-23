@@ -43,6 +43,15 @@ const mintOpens = (
   </>
 );
 
+// The button once this wallet has minted. It's one mint per wallet, so say why
+// it can't mint again.
+const walletLimitReached = (
+  <>
+    Minted
+    <span className="mt-1.5 block text-[13px] tracking-[0.14em]">Wallet limit reached</span>
+  </>
+);
+
 // Read the contract when the page loads, not on a timer or when the tab regains
 // focus. A refresh gets fresh numbers. The card also re-reads after this
 // visitor's own mint, or when the pre-send check refuses one.
@@ -50,7 +59,7 @@ const readOnLoad = { refetchOnWindowFocus: false, refetchOnReconnect: false } as
 
 const revertMessages: Record<string, string> = {
   MintDisabled: "Mint is disabled.",
-  AlreadyMinted: "This wallet has already minted.",
+  AlreadyMinted: "This wallet has already minted. It's one mint per wallet.",
   MaxSupplyReached: `All ${SUPPLY} HOODS have been minted.`,
   WrongMintPrice: "The amount sent didn't match the mint price.",
 };
@@ -173,7 +182,7 @@ export default function MintCard() {
   } else if (mint.data && receipt.isPending) {
     label = "Minting…";
   } else if (mintedTokenId !== undefined || hasMinted.data === true) {
-    label = "Minted";
+    label = walletLimitReached;
   } else if (minted >= SUPPLY) {
     label = "Sold out";
   } else if (!mintEnabled) {
@@ -262,7 +271,8 @@ export default function MintCard() {
 
       {mintedTokenId !== undefined && mint.data ? (
         <p role="status" className="mt-4 text-sm font-semibold">
-          You minted HOODS #{mintedTokenId.toString()}.{" "}
+          You minted HOODS #{mintedTokenId.toString()}. It&apos;s one mint per wallet, so this wallet can&apos;t
+          mint another.{" "}
           <a
             href={transactionUrl(mint.data)}
             target="_blank"
@@ -273,7 +283,9 @@ export default function MintCard() {
           </a>
         </p>
       ) : hasMinted.data === true ? (
-        <p className="mt-4 text-sm font-semibold text-mist">This wallet has already minted its HOODS.</p>
+        <p className="mt-4 text-sm font-semibold text-mist">
+          This wallet has minted its HOODS. It&apos;s one mint per wallet, so it can&apos;t mint another.
+        </p>
       ) : null}
 
       {error && (
