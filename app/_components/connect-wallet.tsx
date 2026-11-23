@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type RefObject } from "react";
 import type { BaseError } from "viem";
 import { useConnect, useConnection, useConnectors, useDisconnect, useSwitchChain } from "wagmi";
 import { chain, siteChainById, type SiteChain } from "@/lib/chain";
@@ -22,25 +22,16 @@ function errorMessage(error: Error | null) {
   return (error as BaseError).shortMessage ?? error.message;
 }
 
-// `targetChainId` is the network this page needs: the site's by default, testnet
-// on the /testnet tools page.
-export default function ConnectWallet({ targetChainId }: { targetChainId?: SiteChain["id"] }) {
-  const targetChain = targetChainId ? siteChainById(targetChainId) : chain;
-  const { address, chainId, status } = useConnection();
-  const connectors = useConnectors();
-  const connect = useConnect();
-  const disconnect = useDisconnect();
-  const switchChain = useSwitchChain();
-
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const menuId = useId();
-
-  // Close the menu on outside click or Escape.
+// Close a menu (`setOpen(false)`) on a click outside `ref` or on Escape.
+export function useDismiss(
+  open: boolean,
+  setOpen: (open: boolean) => void,
+  ref: RefObject<HTMLElement | null>,
+) {
   useEffect(() => {
     if (!open) return;
     const onPointerDown = (event: PointerEvent) => {
-      if (!containerRef.current?.contains(event.target as Node)) setOpen(false);
+      if (!ref.current?.contains(event.target as Node)) setOpen(false);
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
@@ -51,7 +42,77 @@ export default function ConnectWallet({ targetChainId }: { targetChainId?: SiteC
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [open]);
+  }, [open, setOpen, ref]);
+}
+
+// The list of wallets to connect with, used in the header's menu and under the
+// mint button. `chainId` is the network to connect on.
+export function WalletPicker({ chainId, onConnected }: { chainId: SiteChain["id"]; onConnected: () => void }) {
+  const connectors = useConnectors();
+  const connect = useConnect();
+
+  // Wallets that announced themselves; fall back to the generic injected
+  // wallet only when none did but one is present on the page.
+  const announced = connectors.filter((connector) => connector.id !== "injected");
+  const hasInjected = typeof window !== "undefined" && "ethereum" in window;
+  const available = announced.length
+    ? announced
+    : connectors.filter((connector) => connector.id === "injected" && hasInjected);
+
+  if (!available.length) {
+    return (
+      <p className="p-3 text-sm text-paper/80">
+        No wallet found. Install a browser wallet such as MetaMask or Rabby, or open this page
+        in your wallet app&apos;s browser.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      <p className="px-3 pb-2 pt-1 text-xs font-bold uppercase tracking-widest text-paper/60">
+        Choose a wallet
+      </p>
+      <ul>
+        {available.map((connector) => (
+          <li key={connector.uid}>
+            <button
+              type="button"
+              className={itemClass}
+              disabled={connect.isPending}
+              onClick={() => connect.connect({ connector, chainId }, { onSuccess: onConnected })}
+            >
+              {connector.icon ? (
+                <Image src={connector.icon} alt="" width={24} height={24} unoptimized className="rounded" />
+              ) : (
+                <span aria-hidden="true" className="h-6 w-6 rounded bg-paper/20" />
+              )}
+              {connector.id === "injected" ? "Browser wallet" : connector.name}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {connect.error && (
+        <p role="alert" className="px-3 pt-2 text-sm text-paper/80">
+          {errorMessage(connect.error)}
+        </p>
+      )}
+    </>
+  );
+}
+
+// `targetChainId` is the network this page needs: the site's by default, testnet
+// on the /testnet tools page.
+export default function ConnectWallet({ targetChainId }: { targetChainId?: SiteChain["id"] }) {
+  const targetChain = targetChainId ? siteChainById(targetChainId) : chain;
+  const { address, chainId, status } = useConnection();
+  const disconnect = useDisconnect();
+  const switchChain = useSwitchChain();
+
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  useDismiss(open, setOpen, containerRef);
 
   if (status === "connected" && chainId !== targetChain.id) {
     return (
@@ -72,14 +133,6 @@ export default function ConnectWallet({ targetChainId }: { targetChainId?: SiteC
       </div>
     );
   }
-
-  // Wallets that announced themselves; fall back to the generic injected
-  // wallet only when none did but one is present on the page.
-  const announced = connectors.filter((connector) => connector.id !== "injected");
-  const hasInjected = typeof window !== "undefined" && "ethereum" in window;
-  const available = announced.length
-    ? announced
-    : connectors.filter((connector) => connector.id === "injected" && hasInjected);
 
   return (
     <div ref={containerRef} className="relative">
@@ -117,46 +170,8 @@ export default function ConnectWallet({ targetChainId }: { targetChainId?: SiteC
                 Disconnect
               </button>
             </>
-          ) : available.length ? (
-            <>
-              <p className="px-3 pb-2 pt-1 text-xs font-bold uppercase tracking-widest text-paper/60">
-                Choose a wallet
-              </p>
-              <ul>
-                {available.map((connector) => (
-                  <li key={connector.uid}>
-                    <button
-                      type="button"
-                      className={itemClass}
-                      disabled={connect.isPending}
-                      onClick={() =>
-                        connect.connect(
-                          { connector, chainId: targetChain.id },
-                          { onSuccess: () => setOpen(false) },
-                        )
-                      }
-                    >
-                      {connector.icon ? (
-                        <Image src={connector.icon} alt="" width={24} height={24} unoptimized className="rounded" />
-                      ) : (
-                        <span aria-hidden="true" className="h-6 w-6 rounded bg-paper/20" />
-                      )}
-                      {connector.id === "injected" ? "Browser wallet" : connector.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-              {connect.error && (
-                <p role="alert" className="px-3 pt-2 text-sm text-paper/80">
-                  {errorMessage(connect.error)}
-                </p>
-              )}
-            </>
           ) : (
-            <p className="p-3 text-sm text-paper/80">
-              No wallet found. Install a browser wallet such as MetaMask or Rabby, or open this page
-              in your wallet app&apos;s browser.
-            </p>
+            <WalletPicker chainId={targetChain.id} onConnected={() => setOpen(false)} />
           )}
         </div>
       )}
