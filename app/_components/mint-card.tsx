@@ -262,8 +262,7 @@ export default function MintCard() {
 
       {mintedTokenId !== undefined && mint.data ? (
         <p role="status" className="mt-4 text-sm font-semibold">
-          You minted HOODS #{mintedTokenId.toString()}. It&apos;s one mint per wallet, so this wallet can&apos;t
-          mint another.{" "}
+          You minted HOODS #{mintedTokenId.toString()}.{" "}
           <a
             href={transactionUrl(mint.data)}
             target="_blank"
