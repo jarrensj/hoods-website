@@ -43,15 +43,6 @@ const mintOpens = (
   </>
 );
 
-// The button once this wallet has minted. It's one mint per wallet, so say why
-// it can't mint again.
-const walletLimitReached = (
-  <>
-    Minted
-    <span className="mt-1.5 block text-[13px] tracking-[0.14em]">Wallet limit reached</span>
-  </>
-);
-
 // Read the contract when the page loads, not on a timer or when the tab regains
 // focus. A refresh gets fresh numbers. The card also re-reads after this
 // visitor's own mint, or when the pre-send check refuses one.
@@ -182,7 +173,7 @@ export default function MintCard() {
   } else if (mint.data && receipt.isPending) {
     label = "Minting…";
   } else if (mintedTokenId !== undefined || hasMinted.data === true) {
-    label = walletLimitReached;
+    label = "Minted";
   } else if (minted >= SUPPLY) {
     label = "Sold out";
   } else if (!mintEnabled) {
